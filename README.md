@@ -2,15 +2,19 @@
 
 Primary Goal:
 
-- To design a primitive web crawler that will begin with a given HTML (seed) and identify every Hyperlink embedded within the webpage. (Must be of HTTP or HTTPS protocol for simplicity/brevity)
+- To design a primitive web crawler that begins with a predetermined URL seed and crawls to a limit given before runtime.
 
-- Each Hyperlink is added to a given Queue to be visited at a later time during Runtime, so long as the limit
-  hasn't been reached.
+- The path of the crawler will be returned after either:
+    1.) The crawler has reached its user-determined limit of pages to crawler
+    2.) The queue of Links to explore has been exhausted
 
-- The crawler continues to explore new sites until a user-determined crawl-limit is reached.
+- Duplicates will not be displayed in the final pathway of the crawler.
 
-Nice Feature(s) to think about Implementing:
+- You may implement this solution using any external libraries, so long as you understand how they work.
 
-- Tag (perhaps by storing them in another data structure) each Hyperlink whose page contains a given keyword or phrase to be returned by the web crawler.
+
+Desirable Features to think about Implementing:
+
+- Tag (perhaps by storing them in another data structure) each Hyperlink whose page contains a user-determined            keyword or phrase.
 
 - Return the Data Structure of "hits" when finished.
