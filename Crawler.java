@@ -1,81 +1,155 @@
-import java.util.ArrayDeque;  // To be our Structure for Queue
-import java.util.ArrayList;   // Dynamic array to store URLs to visit later.
-import java.net.URL;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayDeque;
+import java.util.HashSet;
+import java.util.Iterator;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.apache.commons.validator.routines.UrlValidator;
+
 import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 
 public class Crawler{
 
-  private Crawler(){};
+  private Crawler(){}; // No need to instantiate objects here, so constructor stays private.
 
-  public static ArrayList<URL> crawl(String seed_URL, int numberOfLinksToCheck) throws IOException{ // return a "hit list" to explore or make note of.
+  public static HashSet<URL> crawl(String seed_Url, int pages_To_Crawl) throws MalformedURLException{
 
-    if(numberOfLinksToCheck <= 0)
+    // We will return a list of Strings corresponding to "hits" to investigate.
+
+    ArrayDeque<URL> queueOf_SearchableURLs = new ArrayDeque<>(); // Initialize queue of URLs to search
+    HashSet<URL> visitedSites = new HashSet<>(); // Set to track our progress
+    int limit = pages_To_Crawl;
+
+    String[] schemes = {"http", "https"}; // We will be looking at only http and https protocols as our seed
+
+    UrlValidator urlValidatorObj = new UrlValidator(schemes);
+
+
+    if(!urlValidatorObj.isValid(seed_Url)){ // If the URL is invalid, we will stop before we begin.
+      System.out.println("Seed URL is invalid");
       return null;
-
-    int limit = numberOfLinksToCheck;
-    ArrayDeque<URL> queueOfLinks = new ArrayDeque<>();
-    ArrayList<URL> link_Hits = new ArrayList<>();
-
-    URL myURL = null;
-
-    try{
-      myURL = new URL(seed_URL);  // If user input doesn't reconcile as a URL, print the stack trace.
-    }catch (MalformedURLException ex){
-      ex.printStackTrace();
     }
 
-    queueOfLinks.add(myURL); // add the seed URL to our List
+    // If we are at this point, we know the seed_Url is valid.
+    try{
+    	System.out.println("Seed URL is valid.");
+    	queueOf_SearchableURLs.add(new URL(seed_Url)); // Add the validated seed URL to the queue.
+    }catch (MalformedURLException ex){
+    	ex.printStackTrace();
+    }
 
-    while( queueOfLinks.size() < limit && !queueOfLinks.isEmpty() ){
+    while(!queueOf_SearchableURLs.isEmpty() && visitedSites.size() < limit){
 
-      // While the queue of links to explore is less than our predetermined limit AND the
-      // queue of Links to explore is not empty (signifying no more links to explore),then
-      // proceed.
+      // while the pending URL queue isn't empty AND we haven't reached the limit of pages to parse.
 
-      URL current_URLToExplore = queueOfLinks.remove();
+      URL currentURL = queueOf_SearchableURLs.remove();
 
-      BufferedReader input = null;
+
+      // currentURL is the URL previously at head of the queue.
+
+
+
+      // At this point, we KNOW we have a valid, unvisited URL in "currentURL"
+
+      Document myDoc = null; // Solely declared for scoping purposes here.
 
       try{
-        // Create an InputStreamReader Object corresponding to the URL's stream and wrap it
-        // in a BufferedReader for efficiency.
-
-        input = new BufferedReader(new InputStreamReader(current_URLToExplore.openStream()));
-
+    	  /*
+    	   * Jsoup.parse(URL myURL, int millisToTimeOut) is a method in JSoup library that allows
+    	   * us to parse a URL into a document for operationalization.
+    	   */
+    	  myDoc = Jsoup.parse(currentURL, 10000000);
       }catch (IOException ex){
-        ex.printStackTrace();
+    	  System.out.println("IO");
+    	  /*
+    	   * Promptly note the IO exception in console and continue
+    	   * Note: We do NOT want to stop the program just because a certain URL can't be resolved.
+    	   */
+    	  continue;
       }
 
-      String textLine = null;
+      // We now have an acceptable HTML document to parse via Jsoup connection
 
-      while((textLine = input.readLine()) != null){
+      Elements currentURL_Links = myDoc.select("a[href]");
+      /* Returns an ArrayList<Element> object, in this case, links to be used.
+       * Empty if none are found.
+       */
 
-        String[] tokens = textLine.split(" ");
-        // Read a Line from InputStream and partition it into tokens (a String array) delimited via Space character.
 
-        for(int i = 0; i < tokens.length; i++) // iterate over every token retrieved from the text line.
-          if(tokens[i].matches("^https?|ftp|file)://[a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")){
+      for(int i = 0; i < currentURL_Links.size(); i++){
+    	  /*
+    	   * Iterate over each Element object and add them to the queue if they
+    	   * fit our specifications.
+    	   */
+    	  Element currentEle = currentURL_Links.get(i);
 
-            // If the token matches the regex pattern corresponding to syntax consistent with a URL, add it to be explored.
+    	  /*
+    	   * Retrieves the ith element (link) within our list of elements (links)
+    	   * Now we have a sole element (link) to work with. (href = "https://www.example.com")
+    	   */
 
-            queueOfLinks.add(new URL(tokens[i])); // Add the new URL to explore if it matches the URL syntactic Regex
+    	  String link_Href = currentEle.attr("abs:href");
 
-          } else continue; // If it fails to match URL regex, just continue iterating.
+    	  /*
+    	   * Node.attr(String key) method returns the value of the attribute matching our key
+    	   * In this case, it's href because we want a String representation of the actual link value.
+    	   */
+
+    	  if(!visitedSites.contains(link_Href) && (queueOf_SearchableURLs.size() + visitedSites.size()) < limit){
+
+    		  /*
+    		   *  If our HashSet does not contain this URL AND we KNOW that
+    		   *  the amount of visited sites PLUS the amount of sites
+    		   *  waiting in the queue is less than our overall limit of sites
+    		   *  to explore, then we add the URL to the queue.
+    		   */
+
+    		  queueOf_SearchableURLs.add(new URL(link_Href));
+    	  } else continue;
+
 
       }
+
+      /*
+       *  Don't forget to add the current URL to the HashSet for future reference.
+       *  Note that adding duplicates to the HashSet won't actually put them in, so we don't
+       *  need an if-statement before we add the current URL.
+       */
+
+      visitedSites.add(currentURL);
+
+
+      System.out.println("Just visited: " + currentURL.toString() +  "\nSize of Path: " + visitedSites.size());
+      // Test code.
+
 
     }
 
-    return null;
-  }
-
-  public static void main(String[] args){
-    // main method (tester)
+    return visitedSites; // return our URL path.
 
   }
 
+  public static void main(String[] args) throws MalformedURLException{
 
-}
+
+	  HashSet<URL> pathTraveled = crawl("http://www.wired.com/", 15);
+
+
+	  Iterator<URL> iterator = pathTraveled.iterator();
+	  /*
+	   * Iterator will serve to print out each URL in string format to show us where
+	   * we've been, No duplicates.
+	   */
+
+	  while(iterator.hasNext()){
+		  System.out.println(iterator.next());
+	  }
+
+
+  } // main
+
+} // class
