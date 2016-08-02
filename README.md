@@ -2,12 +2,17 @@
 
 Primary Goal:
 
-- To design a primitive web crawler that will begin with a given HTML (seed) and identify every Hyperlink embedded within the webpage.
+- Design a web crawler that will crawl up to a user-determined number of pages
 
-- Each Hyperlink is added to a given Queue to be visited at a later time during Runtime.
+- Crawler is given the seed URL prior to runtime and will deploy breadth-first search to crawl until one of its stopping conditions have been reached
 
-- The Hyperlink Queue expands until it reaches a predetermined capacity, called 'n' inputted by the user.
+- Crawler will only stop if either:
+    1.) Pre-determined limit of pages have been crawled
+    2.) Queue of pending links to explore becomes completely exhausted
 
-Nice Feature(s) to think about Implementing:
+- Crawler may implement 3rd-party Java libraries if they improve/simplify the overall functionality
 
-- Tag (perhaps by storing them in another data structure) each Hyperlink whose page contains a given keyword or phrase to be returned by the web crawler.
+
+Desirable Feature(s) (To be implemented later):
+
+- Tag sites that have mentioned a specific user-given String
