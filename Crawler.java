@@ -16,18 +16,21 @@ public class Crawler{
 
   private Crawler(){}; // No need to instantiate objects here, so constructor stays private.
 
-  public static HashSet<URL> crawl(String seed_Url, int pages_To_Crawl) throws MalformedURLException{
+  public static HashSet<String> crawl(String seed_Url, int pages_To_Crawl) throws MalformedURLException{
 
     // We will return a list of Strings corresponding to "hits" to investigate.
 
     ArrayDeque<URL> queueOf_SearchableURLs = new ArrayDeque<>(); // Initialize queue of URLs to search
-    HashSet<URL> visitedSites = new HashSet<>(); // Set to track our progress
+    HashSet<String> visitedSites = new HashSet<>(); // Set to track our progress
     int limit = pages_To_Crawl;
 
     String[] schemes = {"http", "https"}; // We will be looking at only http and https protocols as our seed
 
     UrlValidator urlValidatorObj = new UrlValidator(schemes);
 
+    /*
+     * Validator made to be predisposed to protocols: HTTP and HTTPS
+     */
 
     if(!urlValidatorObj.isValid(seed_Url)){ // If the URL is invalid, we will stop before we begin.
       System.out.println("Seed URL is invalid");
@@ -39,12 +42,13 @@ public class Crawler{
     	System.out.println("Seed URL is valid.");
     	queueOf_SearchableURLs.add(new URL(seed_Url)); // Add the validated seed URL to the queue.
     }catch (MalformedURLException ex){
+
     	ex.printStackTrace();
     }
 
     while(!queueOf_SearchableURLs.isEmpty() && visitedSites.size() < limit){
 
-      // while the pending URL queue isn't empty AND we haven't reached the limit of pages to parse.
+      // while the pending URL queue is NOT empty AND we haven't reached the limit of pages to parse.
 
       URL currentURL = queueOf_SearchableURLs.remove();
 
@@ -62,7 +66,9 @@ public class Crawler{
     	   * Jsoup.parse(URL myURL, int millisToTimeOut) is a method in JSoup library that allows
     	   * us to parse a URL into a document for operationalization.
     	   */
-    	  myDoc = Jsoup.parse(currentURL, 10000000);
+    	  myDoc = Jsoup.connect(currentURL.toString()).get();
+          visitedSites.add(currentURL.toString());
+
       }catch (IOException ex){
     	  System.out.println("IO");
     	  /*
@@ -75,6 +81,7 @@ public class Crawler{
       // We now have an acceptable HTML document to parse via Jsoup connection
 
       Elements currentURL_Links = myDoc.select("a[href]");
+
       /* Returns an ArrayList<Element> object, in this case, links to be used.
        * Empty if none are found.
        */
@@ -99,16 +106,42 @@ public class Crawler{
     	   * In this case, it's href because we want a String representation of the actual link value.
     	   */
 
-    	  if(!visitedSites.contains(link_Href) && (queueOf_SearchableURLs.size() + visitedSites.size()) < limit){
 
+
+    	  /*
+    	   * To circumvent the issue of MalformedURLExceptions, utilize a boolean variable
+    	   * and if a MalformedURLException occurs, simply continue, causing the algorithm to pop the
+    	   * next URL and proceed.
+    	   */
+
+    	  boolean queueContainsLink = true;
+
+
+    	  try{
+    		  queueContainsLink = queueOf_SearchableURLs.contains(new URL(link_Href));
+    	  }catch(MalformedURLException ex){
+    		  continue;
+    	  }
+
+
+    	  if(!queueContainsLink && !visitedSites.contains(link_Href) && (queueOf_SearchableURLs.size() + visitedSites.size()) < limit){
     		  /*
-    		   *  If our HashSet does not contain this URL AND we KNOW that
-    		   *  the amount of visited sites PLUS the amount of sites
-    		   *  waiting in the queue is less than our overall limit of sites
-    		   *  to explore, then we add the URL to the queue.
+    		   * If our Pending URL queue AND VisitedSite Set do NOT contain the link
+    		   * AND we haven't reached our limit of links.
     		   */
 
+    		  if(link_Href.contains("#") || !(urlValidatorObj.isValid(link_Href))){
+    			  /*
+    			   * If the link contains a pound sign OR it is deemed invalid by our
+    			   * Http and Https URL validator, re-loop WITHOUT adding anything to the
+    			   * search queue.
+    			   *
+    			   */
+    			  continue;
+    		  }
+
     		  queueOf_SearchableURLs.add(new URL(link_Href));
+
     	  } else continue;
 
 
@@ -120,12 +153,9 @@ public class Crawler{
        *  need an if-statement before we add the current URL.
        */
 
-      visitedSites.add(currentURL);
-
 
       System.out.println("Just visited: " + currentURL.toString() +  "\nSize of Path: " + visitedSites.size());
       // Test code.
-
 
     }
 
@@ -136,10 +166,10 @@ public class Crawler{
   public static void main(String[] args) throws MalformedURLException{
 
 
-	  HashSet<URL> pathTraveled = crawl("http://www.wired.com/", 15);
+	  HashSet<String> pathTraveled = crawl("https://news.ycombinator.com/", 15);
 
 
-	  Iterator<URL> iterator = pathTraveled.iterator();
+	  Iterator<String> iterator = pathTraveled.iterator();
 	  /*
 	   * Iterator will serve to print out each URL in string format to show us where
 	   * we've been, No duplicates.
