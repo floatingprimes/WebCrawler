@@ -12,6 +12,8 @@ Primary Goal:
 
 - Crawler may implement 3rd-party Java libraries if they improve/simplify the overall functionality
 
+- If Crawler throws a MalformedURLException or a IOException, it will stop operations on the current URL and will pop off the next URL to be operationalized.
+
 
 Desirable Feature(s) (To be implemented later):
 
