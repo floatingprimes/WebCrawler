@@ -16,12 +16,15 @@ public class Crawler{
 
   private Crawler(){}; // No need to instantiate objects here, so constructor stays private.
 
-  public static HashSet<String> crawl(String seed_Url, int pages_To_Crawl) throws MalformedURLException{
+  public static HashSet<URL> crawl(String seed_Url, int pages_To_Crawl, String keyToFind) throws MalformedURLException{
 
     // We will return a list of Strings corresponding to "hits" to investigate.
 
     ArrayDeque<URL> queueOf_SearchableURLs = new ArrayDeque<>(); // Initialize queue of URLs to search
     HashSet<String> visitedSites = new HashSet<>(); // Set to track our progress
+
+    HashSet<URL> sitesWith_Key = new HashSet<>(); // Will track sites with a given key found
+
     int limit = pages_To_Crawl;
 
     String[] schemes = {"http", "https"}; // We will be looking at only http and https protocols as our seed
@@ -45,6 +48,8 @@ public class Crawler{
 
     	ex.printStackTrace();
     }
+
+
 
     while(!queueOf_SearchableURLs.isEmpty() && visitedSites.size() < limit){
 
@@ -82,9 +87,26 @@ public class Crawler{
 
       Elements currentURL_Links = myDoc.select("a[href]");
 
-      /* Returns an ArrayList<Element> object, in this case, links to be used.
-       * Empty if none are found.
-       */
+      // Selects all address tags hrefs and stores in ArrayList<Element> extension --> Elements
+
+
+      String regexToParseFor = ".*" + keyToFind + ".*"; // Stores the regex we will look into titles for
+
+
+      String currentTitle = myDoc.title(); // returns an element list of titles that match the regex
+
+      System.out.println(currentTitle.matches(regexToParseFor));
+
+
+      if(currentTitle.matches(regexToParseFor)){
+    	  /*
+    	   * If the element list contains any number of elements, we know that we've matched
+    	   * our user-defined keyword to at least one title tag's value. So we know we should add
+    	   * the URL to our Set to be looked at later.
+    	   */
+    	  sitesWith_Key.add(currentURL);
+
+      }
 
 
       for(int i = 0; i < currentURL_Links.size(); i++){
@@ -115,7 +137,6 @@ public class Crawler{
     	   */
 
     	  boolean queueContainsLink = true;
-
 
     	  try{
     		  queueContainsLink = queueOf_SearchableURLs.contains(new URL(link_Href));
@@ -159,20 +180,19 @@ public class Crawler{
 
     }
 
-    return visitedSites; // return our URL path.
+    return sitesWith_Key; // return our URL path.
 
   }
 
   public static void main(String[] args) throws MalformedURLException{
 
 
-	  HashSet<String> pathTraveled = crawl("https://news.ycombinator.com/", 15);
+	  HashSet<URL> pathTraveled = crawl("http://cnn.com/", 15, "Breaking");
 
 
-	  Iterator<String> iterator = pathTraveled.iterator();
+	  Iterator<URL> iterator = pathTraveled.iterator();
 	  /*
-	   * Iterator will serve to print out each URL in string format to show us where
-	   * we've been, No duplicates.
+	   * Iterator will serve to print out each URL in string format to show us links of interest.
 	   */
 
 	  while(iterator.hasNext()){

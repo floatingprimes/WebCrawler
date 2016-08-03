@@ -1,4 +1,4 @@
-# Project1
+# Crawler for User Keywords
 
 Primary Goal:
 
@@ -17,4 +17,4 @@ Primary Goal:
 
 Desirable Feature(s) (To be implemented later):
 
-- Tag sites that have mentioned a specific user-given String
+- Tag sites that have mentioned a specific user-given String (Done)
