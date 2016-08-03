@@ -16,9 +16,18 @@ public class Crawler{
 
   private Crawler(){}; // No need to instantiate objects here, so constructor stays private.
 
+
   public static HashSet<URL> crawl(String seed_Url, int pages_To_Crawl, String keyToFind) throws MalformedURLException{
 
-    // We will return a list of Strings corresponding to "hits" to investigate.
+    // We will return a list of URLs corresponding to "hits" to investigate.
+
+	// First we extract the core domain
+
+	String coreDomain = seed_Url.substring(seed_Url.indexOf("//")+2, seed_Url.indexOf(".com"));
+
+	System.out.println(coreDomain); // Now we have the main core domain of the seed site.
+
+	// Initialize data structures and variables to use
 
     ArrayDeque<URL> queueOf_SearchableURLs = new ArrayDeque<>(); // Initialize queue of URLs to search
     HashSet<String> visitedSites = new HashSet<>(); // Set to track our progress
@@ -161,7 +170,11 @@ public class Crawler{
     			  continue;
     		  }
 
+    		  if(!link_Href.contains(coreDomain+".com"))
+    			  continue;
+
     		  queueOf_SearchableURLs.add(new URL(link_Href));
+
 
     	  } else continue;
 
@@ -187,7 +200,7 @@ public class Crawler{
   public static void main(String[] args) throws MalformedURLException{
 
 
-	  HashSet<URL> pathTraveled = crawl("http://cnn.com/", 15, "Breaking");
+	  HashSet<URL> pathTraveled = crawl("https://techcrunch.com/", 150, "pokemon");
 
 
 	  Iterator<URL> iterator = pathTraveled.iterator();
