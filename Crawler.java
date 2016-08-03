@@ -21,11 +21,6 @@ public class Crawler{
 
     // We will return a list of URLs corresponding to "hits" to investigate.
 
-	// First we extract the core domain
-
-	String coreDomain = seed_Url.substring(seed_Url.indexOf("//")+2, seed_Url.indexOf(".com"));
-
-	System.out.println(coreDomain); // Now we have the main core domain of the seed site.
 
 	// Initialize data structures and variables to use
 
@@ -99,23 +94,8 @@ public class Crawler{
       // Selects all address tags hrefs and stores in ArrayList<Element> extension --> Elements
 
 
-      String regexToParseFor = ".*" + keyToFind + ".*"; // Stores the regex we will look into titles for
+      String regexToParseFor = ".*" + keyToFind.toLowerCase() + ".*"; // Stores the regex we will look into titles for
 
-
-      String currentTitle = myDoc.title(); // returns an element list of titles that match the regex
-
-      System.out.println(currentTitle.matches(regexToParseFor));
-
-
-      if(currentTitle.matches(regexToParseFor)){
-    	  /*
-    	   * If the element list contains any number of elements, we know that we've matched
-    	   * our user-defined keyword to at least one title tag's value. So we know we should add
-    	   * the URL to our Set to be looked at later.
-    	   */
-    	  sitesWith_Key.add(currentURL);
-
-      }
 
 
       for(int i = 0; i < currentURL_Links.size(); i++){
@@ -156,7 +136,7 @@ public class Crawler{
 
     	  if(!queueContainsLink && !visitedSites.contains(link_Href) && (queueOf_SearchableURLs.size() + visitedSites.size()) < limit){
     		  /*
-    		   * If our Pending URL queue AND VisitedSite Set do NOT contain the link
+    		   * If BOTH our Pending URL queue AND VisitedSite Set do NOT contain the link
     		   * AND we haven't reached our limit of links.
     		   */
 
@@ -167,25 +147,32 @@ public class Crawler{
     			   * search queue.
     			   *
     			   */
+
     			  continue;
     		  }
 
-    		  if(!link_Href.contains(coreDomain+".com"))
+    		  if(!link_Href.contains(seed_Url)) // If our link has left the home site, restart process with next link
     			  continue;
+
+
+    		  if(link_Href.matches(regexToParseFor))
+    			  sitesWith_Key.add(new URL(link_Href));
+    		  /*
+    		   *  If our link matches our user-given string, add it to the Set to return
+    		   *  for further investigation.
+    		   */
 
     		  queueOf_SearchableURLs.add(new URL(link_Href));
 
+    		  /*
+    		   * Regardless of whether or not it matches our regex, add it to searchable queue of URLs
+    		   * to keep crawling for more regex hits.
+    		   */
 
     	  } else continue;
 
 
       }
-
-      /*
-       *  Don't forget to add the current URL to the HashSet for future reference.
-       *  Note that adding duplicates to the HashSet won't actually put them in, so we don't
-       *  need an if-statement before we add the current URL.
-       */
 
 
       System.out.println("Just visited: " + currentURL.toString() +  "\nSize of Path: " + visitedSites.size());
@@ -200,7 +187,7 @@ public class Crawler{
   public static void main(String[] args) throws MalformedURLException{
 
 
-	  HashSet<URL> pathTraveled = crawl("https://techcrunch.com/", 150, "pokemon");
+	  HashSet<URL> pathTraveled = crawl("http://www.cnn.com/", 300, "Trump");
 
 
 	  Iterator<URL> iterator = pathTraveled.iterator();
