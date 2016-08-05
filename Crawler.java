@@ -16,12 +16,19 @@ public class Crawler{
 
   private Crawler(){}; // No need to instantiate objects here, so constructor stays private.
 
-  public static HashSet<String> crawl(String seed_Url, int pages_To_Crawl) throws MalformedURLException{
 
-    // We will return a list of Strings corresponding to "hits" to investigate.
+  public static HashSet<URL> crawl(String seed_Url, int pages_To_Crawl, String keyToFind) throws MalformedURLException{
+
+    // We will return a list of URLs corresponding to "hits" to investigate.
+
+
+	// Initialize data structures and variables to use
 
     ArrayDeque<URL> queueOf_SearchableURLs = new ArrayDeque<>(); // Initialize queue of URLs to search
     HashSet<String> visitedSites = new HashSet<>(); // Set to track our progress
+
+    HashSet<URL> sitesWith_Key = new HashSet<>(); // Will track sites with a given key found
+
     int limit = pages_To_Crawl;
 
     String[] schemes = {"http", "https"}; // We will be looking at only http and https protocols as our seed
@@ -45,6 +52,8 @@ public class Crawler{
 
     	ex.printStackTrace();
     }
+
+
 
     while(!queueOf_SearchableURLs.isEmpty() && visitedSites.size() < limit){
 
@@ -82,9 +91,11 @@ public class Crawler{
 
       Elements currentURL_Links = myDoc.select("a[href]");
 
-      /* Returns an ArrayList<Element> object, in this case, links to be used.
-       * Empty if none are found.
-       */
+      // Selects all address tags hrefs and stores in ArrayList<Element> extension --> Elements
+
+
+      String regexToParseFor = ".*" + keyToFind.toLowerCase() + ".*"; // Stores the regex we will look into titles for
+
 
 
       for(int i = 0; i < currentURL_Links.size(); i++){
@@ -116,7 +127,6 @@ public class Crawler{
 
     	  boolean queueContainsLink = true;
 
-
     	  try{
     		  queueContainsLink = queueOf_SearchableURLs.contains(new URL(link_Href));
     	  }catch(MalformedURLException ex){
@@ -126,7 +136,7 @@ public class Crawler{
 
     	  if(!queueContainsLink && !visitedSites.contains(link_Href) && (queueOf_SearchableURLs.size() + visitedSites.size()) < limit){
     		  /*
-    		   * If our Pending URL queue AND VisitedSite Set do NOT contain the link
+    		   * If BOTH our Pending URL queue AND VisitedSite Set do NOT contain the link
     		   * AND we haven't reached our limit of links.
     		   */
 
@@ -137,21 +147,32 @@ public class Crawler{
     			   * search queue.
     			   *
     			   */
+
     			  continue;
     		  }
 
+    		  if(!link_Href.contains(seed_Url)) // If our link has left the home site, restart process with next link
+    			  continue;
+
+
+    		  if(link_Href.matches(regexToParseFor))
+    			  sitesWith_Key.add(new URL(link_Href));
+    		  /*
+    		   *  If our link matches our user-given string, add it to the Set to return
+    		   *  for further investigation.
+    		   */
+
     		  queueOf_SearchableURLs.add(new URL(link_Href));
+
+    		  /*
+    		   * Regardless of whether or not it matches our regex, add it to searchable queue of URLs
+    		   * to keep crawling for more regex hits.
+    		   */
 
     	  } else continue;
 
 
       }
-
-      /*
-       *  Don't forget to add the current URL to the HashSet for future reference.
-       *  Note that adding duplicates to the HashSet won't actually put them in, so we don't
-       *  need an if-statement before we add the current URL.
-       */
 
 
       System.out.println("Just visited: " + currentURL.toString() +  "\nSize of Path: " + visitedSites.size());
@@ -159,20 +180,19 @@ public class Crawler{
 
     }
 
-    return visitedSites; // return our URL path.
+    return sitesWith_Key; // return our URL path.
 
   }
 
   public static void main(String[] args) throws MalformedURLException{
 
 
-	  HashSet<String> pathTraveled = crawl("https://news.ycombinator.com/", 15);
+	  HashSet<URL> pathTraveled = crawl("http://www.cnn.com/", 300, "Trump");
 
 
-	  Iterator<String> iterator = pathTraveled.iterator();
+	  Iterator<URL> iterator = pathTraveled.iterator();
 	  /*
-	   * Iterator will serve to print out each URL in string format to show us where
-	   * we've been, No duplicates.
+	   * Iterator will serve to print out each URL in string format to show us links of interest.
 	   */
 
 	  while(iterator.hasNext()){
