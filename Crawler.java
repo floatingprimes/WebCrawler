@@ -10,6 +10,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.apache.commons.validator.routines.UrlValidator;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class Crawler{
@@ -191,7 +193,9 @@ public class Crawler{
 
   }
 
-  public static HashSet<URL> crawl(String seed_Url, String keyToFind) throws MalformedURLException{
+  // Overloaded Method for exhaustive crawl
+
+  public static HashSet<URL> crawl(String seed_Url, String keyToFind, String pathToTxtFile) throws MalformedURLException{
 
 	    // We will return a list of URLs corresponding to "hits" to investigate.
 
@@ -364,15 +368,59 @@ public class Crawler{
 
 	    }
 
+
 	    System.out.println("Total of:  " + pageCount + " pages." + "\nHome URL:  " + seed_Url);
+
+	    try{
+	    	writeHitList(sitesWith_Key, pathToTxtFile);
+	    } catch(IOException ex){
+	    	ex.printStackTrace();
+	    }
+
 
 	    return sitesWith_Key; // return our URL path.
 
 	  }
+
+  // Feature that enables a HashSet<E> to be passed as a parameter to write the "hitlist" to a new local .txt file
+
+  private static void writeHitList(HashSet<URL> myHitList, String fulltxtFilePath) throws IOException{
+
+
+	  File hit_txt_File = new File(fulltxtFilePath); // Does not actually create the new file, just corresponding object
+
+	  hit_txt_File.getParentFile().mkdirs();
+
+
+	  try{
+		  hit_txt_File.createNewFile(); // Creates the new File ONLY IF that file doesn't already exist.
+	  } catch (IOException ex){
+		  ex.printStackTrace();
+	  }
+
+
+	  FileWriter myWriter = new FileWriter(hit_txt_File); // Character writer object to write characters into a txt file
+
+	  Iterator<URL> iterator = myHitList.iterator();
+
+	  while(iterator.hasNext()){ // while the list has another value keep iterating
+		  try{
+			  myWriter.write(iterator.next() + "\n"); // write the hit link into the file.
+		  } catch(IOException ex){
+			  ex.printStackTrace();
+		  }
+	  }
+
+	  myWriter.close();
+
+
+  }
+
+
   public static void main(String[] args) throws MalformedURLException{
 
 
-	  HashSet<URL> pathTraveled = crawl("http://www.cnn.com/", "Trump");
+	  HashSet<URL> pathTraveled = crawl("http://www.cnn.com/", "Trump", "/Users/justinstuart/Desktop/Scraped_Data/cnn_TrumpArticles.txt");
 
 
 	  Iterator<URL> iterator = pathTraveled.iterator();

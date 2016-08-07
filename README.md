@@ -17,6 +17,8 @@ Primary Goal:
 
 Desirable Feature(s) (To be implemented later):
 
-- Tag sites that have mentioned a specific user-given String.
+- Tag sites that have mentioned a specific user-given String. (Done)
 
-- Implement an exhaustive crawl, to continue crawling until the queue of links to be searched. It is accessed by using an overloaded static crawl method. (where seed_Url and keyString is provided with no page limit)
+- Implement an exhaustive crawl, to continue crawling until the queue of links to be searched. It is accessed by using an overloaded static crawl method. (Done)
+
+- Have the crawler create and write the list of URLs into a txtFile, whose path is determined by a passed String parameter. (Done)
