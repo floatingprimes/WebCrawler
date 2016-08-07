@@ -1,4 +1,4 @@
-# Crawler for User Keywords
+# Project1
 
 Primary Goal:
 
@@ -14,11 +14,11 @@ Primary Goal:
 
 - If Crawler throws a MalformedURLException or a IOException, it will stop operations on the current URL and will pop off the next URL to be operationalized.
 
-- Crawler will return a set of sites that match a user specification.
-
 
 Desirable Feature(s) (To be implemented later):
 
-- Tag sites with links that mentioned a specific user-given String (Done)
+- Tag sites that have mentioned a specific user-given String. (Done)
 
-- Restrict crawler to one main domain site (Done)
+- Implement an exhaustive crawl, to continue crawling until the queue of links to be searched. It is accessed by using an overloaded static crawl method. (Done)
+
+- Have the crawler create and write the list of URLs into a txtFile, whose path is determined by a passed String parameter. (Done)
