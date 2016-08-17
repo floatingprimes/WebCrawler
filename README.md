@@ -33,3 +33,5 @@ Desirable Feature(s) (To be implemented):
 - Implement an exhaustive crawl, to continue crawling until the queue of links to be searched. It is accessed by using an overloaded static crawl method. (Done)
 
 - Have the crawler create and write the list of URLs into a txtFile, whose path is determined by a passed String parameter. (Done)
+
+- Implement a Swing-based GUI for interactivity with the user. (In Progress)
