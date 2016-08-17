@@ -1,3 +1,5 @@
+package spyder;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayDeque;
@@ -585,24 +587,6 @@ public class Crawler{
 	    return sitesWith_Key; // return our URL path.
 
 	  }
-
-
-  public static void main(String[] args) throws MalformedURLException{
-
-
-	  HashSet<URL> pathTraveled = crawl("http://www.cnn.com/", "Trump");
-
-
-	  Iterator<URL> iterator = pathTraveled.iterator();
-	  /*
-	   * Iterator will serve to print out each URL in string format to show us links of interest.
-	   */
-
-	  while(iterator.hasNext()){
-		  System.out.println(iterator.next());
-	  }
-
-
-  } // main
-
+  	public static void main(String[] args){
+  	}
 } // class

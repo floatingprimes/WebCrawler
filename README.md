@@ -34,4 +34,4 @@ Desirable Feature(s) (To be implemented):
 
 - Have the crawler create and write the list of URLs into a txtFile, whose path is determined by a passed String parameter. (Done)
 
-- Implement a Swing-based GUI for interactivity with the user. (In Progress)
+- Implement a javafx enabled GUI for interactivity with the user. (In Progress)
