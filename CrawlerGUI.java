@@ -29,15 +29,15 @@ public class CrawlerGUI extends Application{
 
 	public BorderPane getPane(){
 
-		BorderPane pane = new BorderPane();
+		BorderPane pane = new BorderPane(); // Pane to return
 
-		VBox myButtonPane = new VBox(10);
+		VBox myButtonPane = new VBox(10); // Pane for Radio Buttons
 		VBox txtFileChoices = new VBox(5);
 		VBox txtFilePane = new VBox(10);
 
-		HBox keyWordPane = new HBox(5);
-		HBox urlPane = new HBox(5);
-		HBox txtFilePathPane = new HBox(5);
+		HBox keyWordPane = new HBox(5); // Pane to include key word search field AND description Text
+		HBox urlPane = new HBox(5); // Pane to include all things relating to the URL Seed to use
+		HBox txtFilePathPane = new HBox(5); // Pane to include all things relating to the txt file path
 
 		TextField searchKey = new TextField();
 		TextField seed_URL = new TextField();
@@ -52,7 +52,7 @@ public class CrawlerGUI extends Application{
 		RadioButton write_Button = new RadioButton("Write to File");
 		RadioButton noWrite_Button = new RadioButton("Don't Write to File");
 
-		Text descriptionOf_Key = new Text("Insert your word or phrase to Search for:");
+		Text descriptionOf_Key = new Text("Insert your word or phrase to Crawl for:");
 		Text descriptionOf_URL = new Text("Insert the seed URL:");
 		Text descriptionOf_TxtFile = new Text("Insert txt file path: ");
 
@@ -65,13 +65,41 @@ public class CrawlerGUI extends Application{
 
 		search_Confirm.setOnAction(event -> {
 
+		if(noWrite_Button.isSelected()){
+
+			/*
+			 * If the button indicating no Write is selected, we call the crawl
+			 * method that does not write to a txt file.
+			 */
+
 			try {
 				Crawler.crawl(seed_URL.getText(), searchKey.getText());
 			} catch (Exception e) {				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
+		}
+		else if(write_Button.isSelected()){
+
+			/*
+			 * If the write to txt file button is selected, then we call the corresponding
+			 * write to txt file crawl method.
+			 */
+
+			try{
+				Crawler.crawl(seed_URL.getText(), searchKey.getText(), pathToTxtFile.getText());
+			} catch (Exception ex){
+				ex.printStackTrace();
+			}
+
+
+		} else{
+			/*
+			 * Else neither button is selected.
+			 */
+		}
 		});
+
 
 		myButtonPane.getChildren().addAll(keyWordPane, urlPane, txtFilePathPane, search_Confirm);
 		txtFileChoices.getChildren().addAll(write_Button, noWrite_Button);
