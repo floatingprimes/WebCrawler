@@ -1,5 +1,8 @@
 package spyder;
 
+import java.util.HashSet;
+import java.net.URL;
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -20,7 +23,7 @@ public class CrawlerGUI extends Application{
 	public void start(Stage primaryStage) throws Exception {
 		// TODO Auto-generated method stub
 
-		Scene myScene = new Scene(getPane(), 700, 250);
+		Scene myScene = new Scene(getPane(), 900, 250);
 		primaryStage.setTitle("Web Crawler");
 		primaryStage.setScene(myScene);
 		primaryStage.show();
@@ -38,6 +41,8 @@ public class CrawlerGUI extends Application{
 		HBox keyWordPane = new HBox(5); // Pane to include key word search field AND description Text
 		HBox urlPane = new HBox(5); // Pane to include all things relating to the URL Seed to use
 		HBox txtFilePathPane = new HBox(5); // Pane to include all things relating to the txt file path
+
+		HBox myURLCountPane = new HBox(10);
 
 		TextField searchKey = new TextField();
 		TextField seed_URL = new TextField();
@@ -71,9 +76,12 @@ public class CrawlerGUI extends Application{
 			 * If the button indicating no Write is selected, we call the crawl
 			 * method that does not write to a txt file.
 			 */
-
 			try {
-				Crawler.crawl(seed_URL.getText(), searchKey.getText());
+				// Store the hash set retrieved via the crawl method into a local variable.
+				HashSet<URL> myHitList = Crawler.crawl(seed_URL.getText(), searchKey.getText());
+				Text urlCount = new Text("" + myHitList.size() + " pages found with " + searchKey.getText() + " in link reference");
+				myURLCountPane.getChildren().add(urlCount);
+
 			} catch (Exception e) {				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -100,8 +108,12 @@ public class CrawlerGUI extends Application{
 		}
 		});
 
+		HBox searchConfirmAndHitcount = new HBox(10);
+		searchConfirmAndHitcount.getChildren().addAll(search_Confirm, myURLCountPane);
 
-		myButtonPane.getChildren().addAll(keyWordPane, urlPane, txtFilePathPane, search_Confirm);
+		searchConfirmAndHitcount.setPadding(new Insets(10,10,10,10));
+
+		myButtonPane.getChildren().addAll(keyWordPane, urlPane, txtFilePathPane, searchConfirmAndHitcount);
 		txtFileChoices.getChildren().addAll(write_Button, noWrite_Button);
 		txtFilePane.getChildren().addAll(txtChoices, txtFileChoices);
 
