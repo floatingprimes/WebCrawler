@@ -20,114 +20,128 @@ import javafx.stage.Stage;
 public class CrawlerGUI extends Application{
 
 	@Override
-	public void start(Stage primaryStage) throws Exception {
+	public void start(Stage primaryStage) throws Exception, InterruptedException {
 		// TODO Auto-generated method stub
-
+		
 		Scene myScene = new Scene(getPane(), 900, 250);
 		primaryStage.setTitle("Web Crawler");
 		primaryStage.setScene(myScene);
 		primaryStage.show();
+		
+		primaryStage.setOnCloseRequest(event -> {
+			
+				System.exit(0);
+			
+			
+		});
 
 	}
 
 	public BorderPane getPane(){
-
+		
 		BorderPane pane = new BorderPane(); // Pane to return
-
+		
 		VBox myButtonPane = new VBox(10); // Pane for Radio Buttons
-		VBox txtFileChoices = new VBox(5);
+		VBox txtFileChoices = new VBox(5); 
 		VBox txtFilePane = new VBox(10);
-
+		
 		HBox keyWordPane = new HBox(5); // Pane to include key word search field AND description Text
 		HBox urlPane = new HBox(5); // Pane to include all things relating to the URL Seed to use
 		HBox txtFilePathPane = new HBox(5); // Pane to include all things relating to the txt file path
-
+		
 		HBox myURLCountPane = new HBox(10);
-
-		TextField searchKey = new TextField();
+		
+		TextField searchKey = new TextField(); 
 		TextField seed_URL = new TextField();
 		TextField pathToTxtFile = new TextField();
-
+		
 		Button search_Confirm = new Button("Crawl"); // Confirmation user's search String and seed URL are all set.
-
+		
 		Text txtChoices = new Text("Do you want to write resulting web crawler hits to a txt file?");
-
+		
 		final ToggleGroup myToggleGroup = new ToggleGroup();
-
+				
 		RadioButton write_Button = new RadioButton("Write to File");
 		RadioButton noWrite_Button = new RadioButton("Don't Write to File");
-
+		
+		write_Button.setToggleGroup(myToggleGroup);
+		noWrite_Button.setToggleGroup(myToggleGroup);
+		
 		Text descriptionOf_Key = new Text("Insert your word or phrase to Crawl for:");
 		Text descriptionOf_URL = new Text("Insert the seed URL:");
 		Text descriptionOf_TxtFile = new Text("Insert txt file path: ");
-
+		
 		keyWordPane.getChildren().addAll(descriptionOf_Key, searchKey);
 		urlPane.getChildren().addAll(descriptionOf_URL, seed_URL);
 		txtFilePathPane.getChildren().addAll(descriptionOf_TxtFile, pathToTxtFile);
-
-		write_Button.setToggleGroup(myToggleGroup);
-		noWrite_Button.setToggleGroup(myToggleGroup);
-
+		
+		
 		search_Confirm.setOnAction(event -> {
+			
 
-		if(noWrite_Button.isSelected()){
-
-			/*
-			 * If the button indicating no Write is selected, we call the crawl
-			 * method that does not write to a txt file.
-			 */
-			try {
-				// Store the hash set retrieved via the crawl method into a local variable.
-				HashSet<URL> myHitList = Crawler.crawl(seed_URL.getText(), searchKey.getText());
-				Text urlCount = new Text("" + myHitList.size() + " pages found with " + searchKey.getText() + " in link reference");
-				myURLCountPane.getChildren().add(urlCount);
-
-			} catch (Exception e) {				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		}
-		else if(write_Button.isSelected()){
-
+		if(write_Button.isSelected()){
+			
 			/*
 			 * If the write to txt file button is selected, then we call the corresponding
 			 * write to txt file crawl method.
 			 */
-
+			
 			try{
-				Crawler.crawl(seed_URL.getText(), searchKey.getText(), pathToTxtFile.getText());
+				Integer myFlag = new Integer(0);
+				Crawler myCrawler = new Crawler(myFlag, seed_URL.getText(), searchKey.getText(), pathToTxtFile.getText());
+				Thread thread = new Thread(myCrawler);
+				thread.start();
 			} catch (Exception ex){
 				ex.printStackTrace();
 			}
-
-
-		} else{
+			
+			
+		} else{ 
+			
 			/*
-			 * Else neither button is selected.
+			 * If the button indicating no Write is selected, we call the crawl
+			 * method that does not write to a txt file. Default if none are selected is
+			 * also noWrite Button
 			 */
+			
+			
+			try {	
+				// Store the hash set retrieved via the crawl method into a local variable.
+				Integer myFlag = new Integer(1);
+				Crawler myCrawler = new Crawler(myFlag, seed_URL.getText(), searchKey.getText());
+				Thread thread = new Thread(myCrawler);
+				thread.start();
+				HashSet<URL> myHitList = myCrawler.getSet();
+				Text urlCount = new Text("" + myHitList.size() + " pages found with " + searchKey.getText() + " in link reference");
+				myURLCountPane.getChildren().add(urlCount);
+				
+			} catch (Exception e) {				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 		}
 		});
-
+		
 		HBox searchConfirmAndHitcount = new HBox(10);
 		searchConfirmAndHitcount.getChildren().addAll(search_Confirm, myURLCountPane);
-
+		
 		searchConfirmAndHitcount.setPadding(new Insets(10,10,10,10));
-
-		myButtonPane.getChildren().addAll(keyWordPane, urlPane, txtFilePathPane, searchConfirmAndHitcount);
+		
+		myButtonPane.getChildren().addAll(keyWordPane, urlPane, txtFilePathPane, searchConfirmAndHitcount); 
 		txtFileChoices.getChildren().addAll(write_Button, noWrite_Button);
 		txtFilePane.getChildren().addAll(txtChoices, txtFileChoices);
-
+		
 		myButtonPane.setPadding(new Insets(10,10,10,10));
 		txtFilePane.setPadding(new Insets(10,10,10,10));
-
+		
 		txtFilePane.setAlignment(Pos.BOTTOM_CENTER);
-
+		
 		pane.setTop(txtFilePane);
 		pane.setCenter(myButtonPane);
-
+		
 		return pane;
-
+		
 	}
-
+	
 
 }
