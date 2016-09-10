@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -48,9 +51,7 @@ public class CrawlerGUI extends Application{
 		HBox keyWordPane = new HBox(5); // Pane to include key word search field AND description Text
 		HBox urlPane = new HBox(5); // Pane to include all things relating to the URL Seed to use
 		HBox txtFilePathPane = new HBox(5); // Pane to include all things relating to the txt file path
-		
-		HBox myURLCountPane = new HBox(10);
-		
+				
 		TextField searchKey = new TextField(); 
 		TextField seed_URL = new TextField();
 		TextField pathToTxtFile = new TextField();
@@ -67,6 +68,10 @@ public class CrawlerGUI extends Application{
 		write_Button.setToggleGroup(myToggleGroup);
 		noWrite_Button.setToggleGroup(myToggleGroup);
 		
+		write_Button.setSelected(true); // sets Default to no write
+		
+
+		
 		Text descriptionOf_Key = new Text("Insert your word or phrase to Crawl for:");
 		Text descriptionOf_URL = new Text("Insert the seed URL:");
 		Text descriptionOf_TxtFile = new Text("Insert txt file path: ");
@@ -74,6 +79,22 @@ public class CrawlerGUI extends Application{
 		keyWordPane.getChildren().addAll(descriptionOf_Key, searchKey);
 		urlPane.getChildren().addAll(descriptionOf_URL, seed_URL);
 		txtFilePathPane.getChildren().addAll(descriptionOf_TxtFile, pathToTxtFile);
+		
+		
+		myToggleGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
+			
+			public void changed(ObservableValue<? extends Toggle> observe, Toggle toggle, Toggle newToggle){
+				
+				RadioButton current = (RadioButton) myToggleGroup.getSelectedToggle();
+				String text = current.getText();
+				
+				if(text.equalsIgnoreCase("Don't Write to File"))
+					txtFilePathPane.setVisible(false);
+				else txtFilePathPane.setVisible(true);
+				
+				
+			}
+		});
 		
 		
 		List<String> newsURLs = new ArrayList<String>();
@@ -94,13 +115,27 @@ public class CrawlerGUI extends Application{
 		
 		RadioButton noneButton = new RadioButton("My own set of seed URLs");
 		
-		ToggleGroup mySiteGroup = new ToggleGroup();
+		final ToggleGroup mySiteGroup = new ToggleGroup();
 		
 		newsButton.setToggleGroup(mySiteGroup);
 		techButton.setToggleGroup(mySiteGroup);
 		noneButton.setToggleGroup(mySiteGroup);
 		
 		noneButton.setSelected(true);
+		
+		mySiteGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
+			
+			public void changed(ObservableValue<? extends Toggle> observe, Toggle toggle, Toggle newToggle){
+				
+				RadioButton current = (RadioButton) mySiteGroup.getSelectedToggle();
+				String currentText = current.getText();
+				
+				if(currentText.equalsIgnoreCase("News Sources") || currentText.equalsIgnoreCase("Tech Sources"))
+					urlPane.setVisible(false);
+				else urlPane.setVisible(true);
+				
+			}
+		});
 
 		
 		VBox templateChecks = new VBox(5);
@@ -108,28 +143,79 @@ public class CrawlerGUI extends Application{
 		templateChecks.getChildren().add(techButton);
 		templateChecks.getChildren().add(noneButton);
 		templateChecks.setPadding(new Insets(10,10,10,10));
+		
 
 		
 		search_Confirm.setOnAction(event -> {
 			
 
-		if(write_Button.isSelected())
-		{
-			
-			/*
-			 * If the write to txt file button is selected, then we call the corresponding
-			 * write to txt file crawl method.
-			 */
-			
-			Integer myFlag = new Integer(0);
-			
-			if(newsButton.isSelected())
+			if(write_Button.isSelected())
 			{
 				
+				/*
+				 * If the write to txt file button is selected, then we call the corresponding
+				 * write to txt file crawl method.
+				 */
+							
+				Integer myFlag = new Integer(0);
+				
+				if(newsButton.isSelected())
+				{
+					
+					for(int i = 0; i < newsURLs.size(); i++)
+					{
+						
+						Thread thread = new Thread(new SpyderTask(new Spyder(myFlag, newsURLs.get(i), searchKey.getText(), pathToTxtFile.getText()))); 
+						thread.start();
+					}
+					
+				}
+				else if(techButton.isSelected())
+				{
+					
+					for(int i = 0; i < techSites.size(); i++)
+					{
+						
+						Thread thread = new Thread(new SpyderTask(new Spyder(myFlag, techSites.get(i), searchKey.getText(), pathToTxtFile.getText())));
+						thread.start();
+						
+					}
+					
+				}
+				else // no write button is selected
+				{
+					try
+					{
+						Spyder mySpyder = new Spyder(myFlag, seed_URL.getText(), searchKey.getText(), pathToTxtFile.getText());
+						SpyderTask myTask = new SpyderTask(mySpyder);
+						Thread thread = new Thread(myTask);
+						thread.start();
+					}
+					catch (Exception ex)
+					{
+						ex.printStackTrace();
+					}
+				}
+					
+				
+			}
+			else
+			{ 
+				
+				/*
+				 * If the button indicating no Write is selected, we call the crawl
+				 * method that does not write to a .txt file. Default if none are selected is
+				 * also noWrite Button
+				 */
+							
+				Integer myFlag = new Integer(1);
+			
+			if(newsButton.isSelected()){	
+	
 				for(int i = 0; i < newsURLs.size(); i++)
 				{
 					
-					Thread thread = new Thread(new SpyderTask(new Spyder(myFlag, newsURLs.get(i), searchKey.getText(), pathToTxtFile.getText()))); 
+					Thread thread = new Thread(new SpyderTask(new Spyder(myFlag, newsURLs.get(i), searchKey.getText()))); 
 					thread.start();
 				}
 				
@@ -140,7 +226,7 @@ public class CrawlerGUI extends Application{
 				for(int i = 0; i < techSites.size(); i++)
 				{
 					
-					Thread thread = new Thread(new SpyderTask(new Spyder(myFlag, techSites.get(i), searchKey.getText(), pathToTxtFile.getText())));
+					Thread thread = new Thread(new SpyderTask(new Spyder(myFlag, techSites.get(i), searchKey.getText())));
 					thread.start();
 					
 				}
@@ -150,7 +236,7 @@ public class CrawlerGUI extends Application{
 			{
 				try
 				{
-					Spyder mySpyder = new Spyder(myFlag, seed_URL.getText(), searchKey.getText(), pathToTxtFile.getText());
+					Spyder mySpyder = new Spyder(myFlag, seed_URL.getText(), searchKey.getText());
 					SpyderTask myTask = new SpyderTask(mySpyder);
 					Thread thread = new Thread(myTask);
 					thread.start();
@@ -160,66 +246,11 @@ public class CrawlerGUI extends Application{
 					ex.printStackTrace();
 				}
 			}
-				
-			
-		}
-		else
-		{ 
-			
-			/*
-			 * If the button indicating no Write is selected, we call the crawl
-			 * method that does not write to a .txt file. Default if none are selected is
-			 * also noWrite Button
-			 */
-			
-			Integer myFlag = new Integer(1);
-		
-		if(newsButton.isSelected()){	
-
-			for(int i = 0; i < newsURLs.size(); i++)
-			{
-				
-				Thread thread = new Thread(new SpyderTask(new Spyder(myFlag, newsURLs.get(i), searchKey.getText()))); 
-				thread.start();
-			}
-			
-		}
-		else if(techButton.isSelected())
-		{
-			
-			for(int i = 0; i < techSites.size(); i++)
-			{
-				
-				Thread thread = new Thread(new SpyderTask(new Spyder(myFlag, techSites.get(i), searchKey.getText())));
-				thread.start();
-				
-			}
-			
-		}
-		else // no write button is selected
-		{
-			try
-			{
-				Spyder mySpyder = new Spyder(myFlag, seed_URL.getText(), searchKey.getText());
-				SpyderTask myTask = new SpyderTask(mySpyder);
-				Thread thread = new Thread(myTask);
-				thread.start();
-			}
-			catch (Exception ex)
-			{
-				ex.printStackTrace();
-			}
-		}
-		}
+		  }
 		});
 		
-		HBox searchConfirmAndHitcount = new HBox(10);
-		searchConfirmAndHitcount.getChildren().addAll(search_Confirm, myURLCountPane);
-		
-		searchConfirmAndHitcount.setPadding(new Insets(10,10,10,10));
-		
-		myButtonPane.getChildren().addAll(keyWordPane, urlPane, txtFilePathPane, searchConfirmAndHitcount); 
-		txtFileChoices.getChildren().addAll(write_Button, noWrite_Button);
+		myButtonPane.getChildren().addAll(keyWordPane, urlPane, txtFilePathPane, templateChecks); 
+		txtFileChoices.getChildren().addAll(noWrite_Button, write_Button);
 		txtFilePane.getChildren().addAll(txtChoices, txtFileChoices);
 		
 		myButtonPane.setPadding(new Insets(10,10,10,10));
@@ -229,7 +260,12 @@ public class CrawlerGUI extends Application{
 		
 		pane.setTop(txtFilePane);
 		pane.setCenter(myButtonPane);
-		pane.setBottom(templateChecks);
+		
+		VBox search = new VBox(10);
+		search.getChildren().add(search_Confirm);
+		
+		search.setPadding(new Insets(15,15,15,15));
+		pane.setBottom(search);
 		
 		return pane;
 		
