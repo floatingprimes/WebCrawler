@@ -2,24 +2,21 @@
 
 Primary Goal:
 
-- Design a web crawler that will crawl:
-  - 1.) Up to a user-determined number of pages
-  - 2.) To Exhaustion
+- Design a web crawler that will crawl to exhaustion and be restricted to the home seed url domain
+	- i.e. If your seed url is http://www.cnn.com/, then the crawler will never exit cnn.com
+  
+- Crawler is given the seed URL prior to runtime and will deploy breadth-first search (using a form of Queue) to crawl until a stopping condition has been met
 
-- Crawler is given the seed URL prior to runtime and will deploy breadth-first search to crawl until one of its stopping conditions have been reached
-
-- Crawler will only stop if either:
-    1.) Pre-determined limit of pages have been crawled (if applicable)
-    2.) Queue of pending links to explore becomes completely exhausted
+- Crawler will only stop if:
+	 Queue of pending links to explore becomes completely exhausted
 
 - Crawler may implement 3rd-party Java libraries if they improve/simplify the overall functionality
   - External Libraries for web operationalization include:
-    - .net
-    - apache
-    - jsoup
+    - apache (URL Validator objects)
+    - jsoup (URL connections for HTML document sourcing)
 
 - If Crawler throws a MalformedURLException or a IOException, it will stop operations on the current URL and will pop off the next URL to be operationalized.
-  - We don't want the crawler to stop simply because we attempt to access an link that throws an IOException or a MalformedURLException.
+  - Put differently, we don't want the crawler to stop simply because we attempt to access an link that throws an IOException or a MalformedURLException.
 
 - Particular schemes that the crawler will support are subject to change (and the list will be updated here respectively):
   - HTTP
@@ -34,4 +31,4 @@ Desirable Feature(s) (To be implemented):
 
 - Have the crawler create and write the list of URLs into a txtFile, whose path is determined by a passed String parameter. (Done)
 
-- Implement a javafx enabled GUI for interactivity with the user. (In Progress)
+- Implement a javafx enabled GUI for interactivity with the user. (Done)
