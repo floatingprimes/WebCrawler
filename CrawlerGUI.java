@@ -1,7 +1,7 @@
 package spyder;
 
-import java.util.HashSet;
-import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -23,7 +23,7 @@ public class CrawlerGUI extends Application{
 	public void start(Stage primaryStage) throws Exception, InterruptedException {
 		// TODO Auto-generated method stub
 		
-		Scene myScene = new Scene(getPane(), 900, 250);
+		Scene myScene = new Scene(getPane(), 900, 500);
 		primaryStage.setTitle("Web Crawler");
 		primaryStage.setScene(myScene);
 		primaryStage.show();
@@ -76,49 +76,140 @@ public class CrawlerGUI extends Application{
 		txtFilePathPane.getChildren().addAll(descriptionOf_TxtFile, pathToTxtFile);
 		
 		
+		List<String> newsURLs = new ArrayList<String>();
+		newsURLs.add("http://www.cnn.com/");
+		newsURLs.add("http://www.foxnews.com/");
+		newsURLs.add("http://www.msnbc.com/");
+		newsURLs.add("http://www.bbc.com/");
+		newsURLs.add("http://abcnews.go.com/");
+		newsURLs.add("http://www.nbcnews.com/");
+		RadioButton newsButton = new RadioButton("News Sources");
+		
+		List<String> techSites = new ArrayList<String>();
+		techSites.add("https://techcrunch.com/");
+		techSites.add("http://www.techradar.com/");
+		techSites.add("https://www.wired.com/");
+		techSites.add("https://news.ycombinator.com/");
+		RadioButton techButton = new RadioButton("Tech Sources");
+		
+		RadioButton noneButton = new RadioButton("My own set of seed URLs");
+		
+		ToggleGroup mySiteGroup = new ToggleGroup();
+		
+		newsButton.setToggleGroup(mySiteGroup);
+		techButton.setToggleGroup(mySiteGroup);
+		noneButton.setToggleGroup(mySiteGroup);
+		
+		noneButton.setSelected(true);
+
+		
+		VBox templateChecks = new VBox(5);
+		templateChecks.getChildren().add(newsButton);
+		templateChecks.getChildren().add(techButton);
+		templateChecks.getChildren().add(noneButton);
+		templateChecks.setPadding(new Insets(10,10,10,10));
+
+		
 		search_Confirm.setOnAction(event -> {
 			
 
-		if(write_Button.isSelected()){
+		if(write_Button.isSelected())
+		{
 			
 			/*
 			 * If the write to txt file button is selected, then we call the corresponding
 			 * write to txt file crawl method.
 			 */
 			
-			try{
-				Integer myFlag = new Integer(0);
-				Crawler myCrawler = new Crawler(myFlag, seed_URL.getText(), searchKey.getText(), pathToTxtFile.getText());
-				Thread thread = new Thread(myCrawler);
-				thread.start();
-			} catch (Exception ex){
-				ex.printStackTrace();
+			Integer myFlag = new Integer(0);
+			
+			if(newsButton.isSelected())
+			{
+				
+				for(int i = 0; i < newsURLs.size(); i++)
+				{
+					
+					Thread thread = new Thread(new SpyderTask(new Spyder(myFlag, newsURLs.get(i), searchKey.getText(), pathToTxtFile.getText()))); 
+					thread.start();
+				}
+				
 			}
+			else if(techButton.isSelected())
+			{
+				
+				for(int i = 0; i < techSites.size(); i++)
+				{
+					
+					Thread thread = new Thread(new SpyderTask(new Spyder(myFlag, techSites.get(i), searchKey.getText(), pathToTxtFile.getText())));
+					thread.start();
+					
+				}
+				
+			}
+			else // no write button is selected
+			{
+				try
+				{
+					Spyder mySpyder = new Spyder(myFlag, seed_URL.getText(), searchKey.getText(), pathToTxtFile.getText());
+					SpyderTask myTask = new SpyderTask(mySpyder);
+					Thread thread = new Thread(myTask);
+					thread.start();
+				}
+				catch (Exception ex)
+				{
+					ex.printStackTrace();
+				}
+			}
+				
 			
-			
-		} else{ 
+		}
+		else
+		{ 
 			
 			/*
 			 * If the button indicating no Write is selected, we call the crawl
-			 * method that does not write to a txt file. Default if none are selected is
+			 * method that does not write to a .txt file. Default if none are selected is
 			 * also noWrite Button
 			 */
 			
-			
-			try {	
-				// Store the hash set retrieved via the crawl method into a local variable.
-				Integer myFlag = new Integer(1);
-				Crawler myCrawler = new Crawler(myFlag, seed_URL.getText(), searchKey.getText());
-				Thread thread = new Thread(myCrawler);
-				thread.start();
-				HashSet<URL> myHitList = myCrawler.getSet();
-				Text urlCount = new Text("" + myHitList.size() + " pages found with " + searchKey.getText() + " in link reference");
-				myURLCountPane.getChildren().add(urlCount);
+			Integer myFlag = new Integer(1);
+		
+		if(newsButton.isSelected()){	
+
+			for(int i = 0; i < newsURLs.size(); i++)
+			{
 				
-			} catch (Exception e) {				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Thread thread = new Thread(new SpyderTask(new Spyder(myFlag, newsURLs.get(i), searchKey.getText()))); 
+				thread.start();
 			}
 			
+		}
+		else if(techButton.isSelected())
+		{
+			
+			for(int i = 0; i < techSites.size(); i++)
+			{
+				
+				Thread thread = new Thread(new SpyderTask(new Spyder(myFlag, techSites.get(i), searchKey.getText())));
+				thread.start();
+				
+			}
+			
+		}
+		else // no write button is selected
+		{
+			try
+			{
+				Spyder mySpyder = new Spyder(myFlag, seed_URL.getText(), searchKey.getText());
+				SpyderTask myTask = new SpyderTask(mySpyder);
+				Thread thread = new Thread(myTask);
+				thread.start();
+			}
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+			}
+		}
 		}
 		});
 		
@@ -138,6 +229,7 @@ public class CrawlerGUI extends Application{
 		
 		pane.setTop(txtFilePane);
 		pane.setCenter(myButtonPane);
+		pane.setBottom(templateChecks);
 		
 		return pane;
 		
