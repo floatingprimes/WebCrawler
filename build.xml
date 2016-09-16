@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-	<project name="WebCrawler" default="build">
+	<project name="WebCrawler" default="test">
 	
 	 <!-- Define the various files in our base project folder for reference (if needed). -->
 	<property name="src.dir" value="src/spyder"/>
@@ -19,7 +19,7 @@
 	</path>
 	
 	<!-- Serves to compile our project -->
-	<target name="build" description="Compile java src files">
+	<target name="test" description="Compile java src files">
 		<!-- Creates the Build directory if it does not already exist. -->
 		<mkdir dir="${build.dir}"/> 	
 		<javac destdir="${build.dir}" source="1.8" target="1.8" debug="true" deprecation="false" optimize="false" failonerror="true">
