@@ -2,7 +2,7 @@
 	<project name="WebCrawler" default="test">
 	
 	 <!-- Define the various files in our base project folder for reference (if needed). -->
-	<property name="src.dir" value="src/spyder"/>
+	<property name="src.dir" value="src/Spyder"/>
 	<property name="build.dir" value="bin/spyder"/>
 	<property name="lib.dir" value="lib"/>
 
