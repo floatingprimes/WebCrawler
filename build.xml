@@ -23,7 +23,7 @@
 		<!-- Creates the Build directory if it does not already exist. -->
 		<mkdir dir="${build.dir}"/> 	
 		<javac destdir="${build.dir}" source="1.5" target="1.5" debug="true" deprecation="false" optimize="false" failonerror="true">
-			<src path="${src.dir}"/>
+			<src path="${src.dir}/Spyder*.java"/>
 			<classpath refid="master-classpath"/>
 		</javac>
 	</target>
