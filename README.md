@@ -32,3 +32,5 @@ Desirable Feature(s) (To be implemented):
 - Have the crawler create and write the list of URLs into a txtFile, whose path is determined by a passed String parameter. (Done)
 
 - Implement a javafx enabled GUI for interactivity with the user. (Done)
+
+- Provide a Travis CI YAML file for continuous integration and testing on each git pull leveraging Apache Ant. (Done)
