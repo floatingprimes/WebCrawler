@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+	<project name="WebCrawler" default="build">
+	
+	 <!-- Define the various files in our base project folder for reference (if needed). -->
+	<property name="src.dir" value="src/spyder"/>
+	<property name="build.dir" value="bin/spyder"/>
+	<property name="lib.dir" value="lib"/>
+
+	
+	 <!-- Defines a classpath variable whose id is "master-classpath" which will serve to encompass the
+	 path to all of our dependencies and our user-created java class files (in lib and src folders respectively) -->
+	 
+
+	<path id="master-classpath">
+		<fileset dir="${lib.dir}">
+			<include name="**/*.jar"/>
+		</fileset>
+		<pathelement path="${build.dir}"/>
+	</path>
+	
+	<!-- Serves to compile our project -->
+	<target name="build" description="Compile java src files">
+		<!-- Creates the Build directory if it does not already exist. -->
+		<mkdir dir="${build.dir}"/> 	
+		<javac destdir="${build.dir}" source="1.8" target="1.8" debug="true" deprecation="false" optimize="false" failonerror="true">
+			<src path="${src.dir}"/>
+			<classpath refid="master-classpath"/>
+		</javac>
+	</target>
+	
+	
+	</project>
+	
