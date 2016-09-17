@@ -7,8 +7,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -23,15 +21,19 @@ import java.io.IOException;
 /**
  * 
  * @author justinstuart
- *
+ * @version 1.1.0
+ * @since 2016-09-17
+ * 
  */
 
 public class Spyder
 {
 	
-	public static final int N_THREADS = 50;
-	public ExecutorService threadPool = Executors.newFixedThreadPool(N_THREADS);
-
+	/**
+	 * This program is to be utilized by the GUI class and implements the actual crawling
+	 * mechanism coupled with a print to .txt file method if the user designates a path.
+	 * 
+	 */
 	
 	private static final String[] schemes = {"http", "https"};
 	
@@ -88,7 +90,19 @@ public class Spyder
   }
  
   
-  // Deprecated Method
+  /**
+   * Method crawls from a given seed URL seeking a key with a user-specified limit of pages to crawl. It has been
+   * deprecated as of 2016-9-02
+   * 
+   * @deprecated
+   * @param seed_Url This parameter is the seed URL to begin the crawling algorithm at; first parameter passed
+   * @param keyTo_Find This parameter is the key String to find embedded within the links; second parameter passed
+   * @param pages_To_Crawl This parameter is the limit of pages to be crawled; third parameter passed
+   * @throws MalformedURLException If the String representation of the URL cannot be resolved, the method throws
+   * 							   a MalformedURLException
+   * @throws InterruptedException If the current thread is interrupted while blocked (waiting, sleeping, or otherwise occupied)
+   * 							  the method throws an InterruptedException
+   */
 
   public void crawlWithPageLimit(String seed_Url, String keyTo_Find, Integer pages_To_Crawl) throws MalformedURLException, InterruptedException
   {
@@ -237,16 +251,15 @@ public class Spyder
   
   
   /**
-   * Crawl a single URL and parse all eligible links within the URL into a Queue waiting to be crawled by other threads. Also,
-   * add the current URL to a set of visited sites so we do not visit them again as the crawler progresses through other thread
-   * operations.
+   * Instance method to crawl the given Spyder object's Seed URL to exhaustion. The supported protocols for seed_Urls are
+   * http or https
    * 
-   * 
-   * @param seed_Url: String representation of a seed URL to begin crawling at (http: | https: ////www..*.com((/.*)?)
-   * @param keyTo_Find: String representation of a key to parse/crawl for
-   * @param pathToTxtFile: String representation of a directory pathway to a txt file to write data to
-   * @throws InterruptedException: Thrown if the current thread is interrupted in some way
- * @throws IOException 
+   * @param seed_Url String representation of a seed URL to begin crawling 
+   * @param keyTo_Find String representation of a key to parse/crawl for
+   * @param pathToTxtFile String representation of a directory pathway to a txt file to write data to (optional, based on GUI)
+   * @return Nothing
+   * @throws InterruptedException Thrown if the current thread is interrupted abruptly while blocked
+   * @throws IOException Thrown with invalid input
    */
   
   
@@ -267,6 +280,14 @@ public class Spyder
 	  }
 	    // At this point, we KNOW we have a valid, unvisited URL in "currentURL"
   }
+  
+  /**
+   * Individual crawling method to parse an HTML Document of passed URL
+   * 
+   * @param currentURL String representation of current URL to be crawled
+   * @throws InterruptedException
+   * @throws IOException
+   */
   
   public void crawl(String currentURL) throws InterruptedException, IOException
   {
@@ -404,7 +425,8 @@ public class Spyder
 	  }  
 	  
 	  
-	  FileWriter myWriter = new FileWriter(hit_txt_File); // Character writer object to write characters into a txt file
+	  FileWriter myWriter = new FileWriter(hit_txt_File, true); // Character writer object to write characters into a txt file
+	  myWriter.write("\n");
 	  
 	  Iterator<URL> iterator = myHitSet.iterator();
 	  
@@ -425,6 +447,12 @@ public class Spyder
 
 	  
   }
+  
+  /**
+   * Overridden toString method
+   * 
+   * @return String representation of this particular Spyder object
+   */
   
  @Override
  public String toString()

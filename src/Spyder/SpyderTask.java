@@ -3,10 +3,28 @@ package spyder;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
+/**
+ * 
+ * @author justinstuart
+ * @version 1.1.0
+ * @since 2016-09-17
+ * 
+ */
+
 public class SpyderTask implements Runnable
 {
+	/**
+	 * This program is written as a Runnable task to enable multithreading if desirable.
+	 */
+	
 	private Spyder mySpyder;
 	private static final int DELAY = 50;
+	
+	/**
+	 * SpyderTask constructor
+	 * 
+	 * @param spidey Spyder object corresponding to this particular task
+	 */
 	
 	public SpyderTask(Spyder spidey)
 	{
@@ -48,3 +66,4 @@ public class SpyderTask implements Runnable
 	}
 
 }
+
