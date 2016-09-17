@@ -253,11 +253,7 @@ public class Spyder
   /**
    * Instance method to crawl the given Spyder object's Seed URL to exhaustion. The supported protocols for seed_Urls are
    * http or https
-   * 
-   * @param seed_Url String representation of a seed URL to begin crawling 
-   * @param keyTo_Find String representation of a key to parse/crawl for
-   * @param pathToTxtFile String representation of a directory pathway to a txt file to write data to (optional, based on GUI)
-   * @return Nothing
+   *
    * @throws InterruptedException Thrown if the current thread is interrupted abruptly while blocked
    * @throws IOException Thrown with invalid input
    */
@@ -285,8 +281,9 @@ public class Spyder
    * Individual crawling method to parse an HTML Document of passed URL
    * 
    * @param currentURL String representation of current URL to be crawled
-   * @throws InterruptedException
-   * @throws IOException
+   * @throws InterruptedException will be thrown if current thread is abruptly interrupted while sleeping or waiting
+   * @throws IOException will be thrown if input cannot be resolved
+   *
    */
   
   public void crawl(String currentURL) throws InterruptedException, IOException
@@ -298,11 +295,6 @@ public class Spyder
 
 	      try
 	      {
-	    	  /**
-	    	   * @Dependency (!) org.jsoup.Jsoup.parse(URL myURL, int millisToTimeOut) is a method used to parse a given
-	    	   * URL object (represented via a corresponding String) into a Document Object Model (DOM) which is able to 
-	    	   * be operationalized (as an HTML Document)
-	    	   */
 	    	  
 	    	  myDoc = Jsoup.connect(currentURL).get();
 	      }
@@ -403,8 +395,7 @@ public class Spyder
    * Method to write our list of URLs that contain the user's key String into a user-given File as determined
    * through an absolute directory path passed through the GUI.
    * 
-   * @param mySpyder: Spyder object encapsulating all necessary fields
-   * @throws IOException: Thrown through the use of File object manipulation if needed.
+   * @throws IOException Thrown through the use of File object manipulation if needed.
    */
   
   public void writeHitList() throws IOException{
@@ -463,5 +454,4 @@ public class Spyder
  }
  
 
-} // end class
-
+} // end class 

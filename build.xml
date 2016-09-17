@@ -1,16 +1,15 @@
 <?xml version="1.0"?>
-	<project name="WebCrawler" default="test">
+	<project name="WebCrawler" default="build">
 	
 	 <!-- Define the various files in our base project folder for reference (if needed). -->
-	<property name="src.dir" value="src/Spyder"/>
+	<property name="src.dir" value="src"/>
 	<property name="build.dir" value="bin/spyder"/>
 	<property name="lib.dir" value="lib"/>
+	<property name="doc.dir" value="doc"/>
 
-	
+
 	 <!-- Defines a classpath variable whose id is "master-classpath" which will serve to encompass the
-	 path to all of our dependencies and our user-created java class files (in lib and src folders respectively) -->
-	 
-
+	 path to all of our dependencies and our user-created java class files (in lib and src folders respectively) -->	
 	<path id="master-classpath">
 		<fileset dir="${lib.dir}">
 			<include name="**/*.jar"/>
@@ -18,8 +17,9 @@
 		<pathelement path="${build.dir}"/>
 	</path>
 	
+	
 	<!-- Serves to compile our project -->
-	<target name="test" description="Compile java src files">
+	<target name="build" description="Compile java src files">
 		<!-- Creates the Build directory if it does not already exist. -->
 		<mkdir dir="${build.dir}"/> 	
 		<javac destdir="${build.dir}" debug="true" deprecation="false" optimize="false" failonerror="true">
@@ -27,6 +27,35 @@
 			<classpath refid="master-classpath"/>
 		</javac>
 	</target>
+	
+	
+	<!-- Serves to clean up the build files -->
+	<target name="clean" description="Cleans up the built class files">
+		<delete>
+			<fileset dir="${build.dir}">
+				<include name="**/*.class"/>
+			</fileset>
+		</delete>
+	</target>
+	
+	<!-- Generates Javadoc -->
+	<target name="generate-javadoc" description="Generates a Javadoc for the program">
+		<mkdir dir="${doc.dir}"/>
+		<javadoc packagenames="Spyder" sourcepath="./${src.dir}" destdir="${doc.dir}" version="true" windowtitle="Spyder Application">
+		
+			<doctitle><![CDATA[= Spyder Application =]]></doctitle>
+			<classpath refid="master-classpath"/>
+			
+			<fileset dir="${src.dir}">
+				<include name="**/*.java"/>
+			</fileset>
+			
+		</javadoc>
+		
+		<echo message="Javadoc has been generated."/>
+	</target>
+			
+	
 	
 	
 	</project>
