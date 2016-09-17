@@ -73,9 +73,7 @@ public class Spyder
 	  }
 	  
 	  this.REGEX_TO_PARSE_FOR = ".*" + KEY_TO_FIND.toLowerCase() + ".*";
-	  
-	  System.out.println("Checkpoint 1");
-	  
+	  	  
   }
 
   
